@@ -1,5 +1,21 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import CourseGrid from "@/components/dashboard/CourseGrid";
+import Link from "next/link";
+
+const courseStats = [
+  {
+    title: "Total Courses",
+    value: 10,
+  },
+  {
+    title: "Active Courses",
+    value: 8,
+  },
+  {
+    title: "Draft Courses",
+    value: 2,
+  },
+];
 
 export default function CoursesPage() {
   return (
@@ -7,42 +23,32 @@ export default function CoursesPage() {
       <Sidebar />
 
       <main className="flex-1 p-10">
-         {/* add StatsCards.tsx with new values */}
-        <div className="grid md:grid-cols-4 gap-5 text-xs text-center rounded-2xl">
-          <div className="bg-gray-200 rounded-2xl p-2 shadow-sm hover:bg-gray-300 transition-colors">
-            <h3 className="text-3xl font-bold text-blue-600">
-              10
-            </h3>
-            <p className="text-gray-500 mt-2">
-              Total Courses
-            </p>
-          </div>
+        <div className="grid gap-5 md:grid-cols-4 text-center rounded-2xl">
+          {courseStats.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-2xl bg-gray-200 p-4 shadow-sm transition-colors hover:bg-gray-300"
+            >
+              <h3 className="text-3xl font-bold text-blue-600">
+                {item.value}
+              </h3>
+              <p className="mt-2 text-gray-500">
+                {item.title}
+              </p>
+            </div>
+          ))}
 
-          <div className="bg-gray-200 rounded-2xl p-2 shadow-sm hover:bg-gray-300 transition-colors">
-            <h3 className="text-3xl font-bold text-blue-600">
-              8
-            </h3>
-            <p className="text-gray-500 mt-2">
-              Active Courses
-            </p>
-          </div>
-
-          <div className="bg-gray-200 rounded-2xl p-2 shadow-sm hover:bg-gray-300 transition-colors">
-            <h3 className="text-3xl font-bold text-blue-600">
-              2
-            </h3>
-            <p className="text-gray-500 mt-2">
-              Draft Courses
-            </p>
-          </div>
-            <div className="bg-gray-200 rounded-2xl p-2 shadow-sm hover:bg-gray-300 transition-colors cursor-pointer">
-            <h1 className="text-5xl font-bold text-green-600">
+          <Link
+            href="/manage-content/courses/add-course"
+            className="flex min-h-[120px] flex-col items-center justify-center rounded-2xl bg-gray-200 p-4 shadow-sm transition-all hover:bg-gray-300"
+          >
+            <span className="text-5xl font-bold text-green-600">
               +
-            </h1>
-            <p className=" font-bold text-emerald-600">
-               Add New Course
+            </span>
+            <p className="mt-2 font-bold text-emerald-600">
+              Add New Course
             </p>
-          </div>
+          </Link>
         </div>
 
         <div className="space-y-8 mt-10">

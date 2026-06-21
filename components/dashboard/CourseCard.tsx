@@ -19,6 +19,7 @@ export default function CourseCard({
           src={image}
           alt={title}
           fill
+          priority
           unoptimized
           className="object-cover text-sm"
         />

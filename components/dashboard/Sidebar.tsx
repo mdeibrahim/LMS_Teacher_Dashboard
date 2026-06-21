@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ChevronDown,
@@ -18,6 +19,10 @@ import {
 
 export default function Sidebar() {
   const [contentOpen, setContentOpen] = useState(true);
+  const pathname = usePathname();
+  const isActive = (href: string) => {
+  return pathname === href;
+};
 
   return (
     <aside className="w-[280px] bg-white border-r border-slate-200 min-h-screen flex flex-col">
@@ -54,7 +59,11 @@ export default function Sidebar() {
         {/* Dashboard */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 px-5 py-2 rounded-xl bg-blue-50 text-blue-600 font-medium"
+          className={`flex items-center gap-3 px-5 py-2 rounded-xl font-medium ${
+            isActive("/dashboard")
+              ? "bg-blue-50 text-blue-600"
+              : "text-slate-700 hover:bg-slate-50"
+          }`}
         >
           <LayoutDashboard size={18} />
           Dashboard
@@ -84,7 +93,11 @@ export default function Sidebar() {
             <div className="ml-6 mt-3 space-y-1">
               <Link
                 href="/dashboard/categories"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/dashboard/categories")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <FolderTree size={14} />
                 Categories
@@ -92,7 +105,11 @@ export default function Sidebar() {
 
               <Link
                 href="/dashboard/subcategories"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/dashboard/subcategories")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <Layers3 size={14} />
                 Subcategories
@@ -100,7 +117,12 @@ export default function Sidebar() {
 
               <Link
                 href="/manage-content/courses"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/manage-content/courses") || 
+                  isActive("/manage-content/courses/add-course")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <BookOpen size={14} />
                 Courses
@@ -108,7 +130,11 @@ export default function Sidebar() {
 
               <Link
                 href="/dashboard/modules"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/dashboard/modules")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <Layers3 size={14} />
                 Modules
@@ -116,7 +142,11 @@ export default function Sidebar() {
 
               <Link
                 href="/dashboard/lessons"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/dashboard/lessons")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <BookOpenCheck size={14} />
                 Lessons
@@ -124,7 +154,11 @@ export default function Sidebar() {
 
               <Link
                 href="/dashboard/quizzes"
-                className="flex items-center text-sm gap-2 px-3 py-1 rounded-xl text-slate-600 hover:bg-slate-50"
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
+                  isActive("/dashboard/quizzes")
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
               >
                 <FileQuestion size={14} />
                 Quizzes
@@ -136,7 +170,11 @@ export default function Sidebar() {
         {/* Settings */}
         <Link
           href="/dashboard/settings"
-          className="mt-2 flex items-center gap-3 px-5 py-4 rounded-xl text-slate-700 hover:bg-slate-50"
+          className={`mt-2 flex items-center gap-3 px-5 py-4 rounded-xl font-medium ${
+            isActive("/dashboard/settings")
+              ? "bg-blue-50 text-blue-600"
+              : "text-slate-700 hover:bg-slate-50"
+          }`}
         >
           <Settings size={18} />
           Settings
