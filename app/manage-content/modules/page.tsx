@@ -7,16 +7,16 @@ const courseStats = [
     value: 10,
   },
   {
-    title: "Active Courses",
-    value: 8,
+    title: "Total Modules",
+    value: 20,
   },
   {
-    title: "Draft Courses",
+    title: "Draft Modules",
     value: 2,
   },
 ];
 
-export default function CoursesPage() {
+export default function ModulesPage() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-5 rounded-2xl text-center sm:grid-cols-2 xl:grid-cols-4">
@@ -35,7 +35,7 @@ export default function CoursesPage() {
         ))}
 
         <Link
-          href="/manage-content/courses/add-course"
+          href="/manage-content/modules/add-module"
           className="flex min-h-[120px] flex-col items-center justify-center rounded-2xl bg-gray-200 p-4 shadow-sm transition-all hover:bg-gray-300"
         >
           <span className="text-5xl font-bold text-green-600">
@@ -47,7 +47,11 @@ export default function CoursesPage() {
         </Link>
       </div>
 
-      <CourseGrid />
+      <CourseGrid
+        getCourseHref={(courseId) =>
+          `/manage-content/modules/add-module?courseId=${courseId}`
+        }
+      />
     </div>
   );
 }

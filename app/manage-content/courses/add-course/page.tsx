@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/components/dashboard/Sidebar";
-import { Link } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -12,6 +10,7 @@ export default function AddCoursePage() {
     category: "",
     subcategory: "",
     title: "",
+    description: "",
   });
 
   const categories = [
@@ -49,7 +48,7 @@ export default function AddCoursePage() {
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     setFormData({
@@ -82,122 +81,146 @@ export default function AddCoursePage() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen flex">
-      <Sidebar />
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800">
+          Add New Course
+        </h1>
 
-      <main className="flex-1 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-800">
-              Add New Course
-            </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          Create a new course and assign it
+          to a category.
+        </p>
+      </div>
 
-            <p className="text-slate-500 mt-2 text-sm">
-              Create a new course and assign it
-              to a category.
-            </p>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 rounded-3xl bg-white p-4 shadow-sm"
+      >
+        {/* Category */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Category
+            </label>
+
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-slate-300 px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">
+                Select Category
+              </option>
+
+              {categories.map((category) => (
+                <option
+                  key={category.id}
+                  value={category.name}
+                >
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-3xl shadow-sm p-4 space-y-4"
-          >
-            {/* Category */}
-            <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label className="block mb-2 font-medium text-sm text-slate-700">
-                Category
-              </label>
+          {/* Subcategory */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Sub Category
+            </label>
 
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">
-                  Select Category
+            <select
+              name="subcategory"
+              value={formData.subcategory}
+              onChange={handleChange}
+              disabled={!formData.category}
+              className="w-full rounded-lg border border-slate-300 px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+            >
+              <option value="">
+                Select Sub Category
+              </option>
+
+              {(
+                subcategories[
+                  formData.category as keyof typeof subcategories
+                ] || []
+              ).map((sub) => (
+                <option
+                  key={sub}
+                  value={sub}
+                >
+                  {sub}
                 </option>
-
-                {categories.map((category) => (
-                  <option
-                    key={category.id}
-                    value={category.name}
-                  >
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Subcategory */}
-            <div>
-              <label className="block mb-2 font-medium text-sm text-slate-700">
-                Sub Category
-              </label>
-
-              <select
-                name="subcategory"
-                value={formData.subcategory}
-                onChange={handleChange}
-                disabled={!formData.category}
-                className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
-              >
-                <option value="">
-                  Select Sub Category
-                </option>
-
-                {(
-                  subcategories[
-                    formData.category as keyof typeof subcategories
-                  ] || []
-                ).map((sub) => (
-                  <option
-                    key={sub}
-                    value={sub}
-                  >
-                    {sub}
-                  </option>
-                ))}
-              </select>
-            </div>
-            </div>
-
-            {/* Course Title */}
-            <div>
-              <label className="block mb-2 font-medium text-sm text-slate-700">
-                Course Title
-              </label>
-
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Enter course title"
-                className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-4 pt-4">
-              <button
-                type="button"
-                className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-100"
-              >
-                Cancel
-              </button>
-              
-              <button
-                type="submit"
-                className="px-8 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Save Course
-              </button>
-            </div>
-          </form>
+              ))}
+            </select>
+          </div>
         </div>
-      </main>
+
+        {/* Course Title */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Course Title
+          </label>
+
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter course title"
+            className="w-full rounded-lg border border-slate-300 px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Course Cover */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Course Cover
+          </label>
+
+          <input
+            type="file"
+            name="cover"
+            onChange={handleChange}
+            className="w-full rounded-lg border border-slate-300 px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Course Description */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Course Description
+          </label>
+
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Enter course description"
+            className="w-full rounded-lg border border-slate-300 px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={4}
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 pt-4">
+          <button
+            type="button"
+            className="rounded-xl border border-slate-300 px-6 py-3 hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="rounded-xl bg-blue-600 px-8 py-3 text-white hover:bg-blue-700"
+          >
+            Save Course
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

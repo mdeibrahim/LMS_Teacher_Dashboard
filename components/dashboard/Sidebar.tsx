@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard,
   ChevronDown,
@@ -17,13 +18,23 @@ import {
   LogOut,
 } from "lucide-react";
 
-export default function Sidebar() {
-  const [contentOpen, setContentOpen] = useState(true);
-  const pathname = usePathname();
-  const isActive = (href: string) => {
-  return pathname === href;
-};
+interface SidebarProps {
+  closeSidebar?: () => void;
+}
 
+export default function Sidebar({
+  closeSidebar,
+}: SidebarProps) {
+  const pathname = usePathname();
+  const [contentOpen, setContentOpen] = useState(
+    pathname.startsWith("/manage-content") ||
+    pathname.startsWith("/dashboard")
+  );
+  
+  const isActive = (href: string) => {
+    return pathname === href;
+  };
+  
   return (
     <aside className="w-[280px] bg-white border-r border-slate-200 min-h-screen flex flex-col">
       {/* Logo */}
@@ -34,11 +45,13 @@ export default function Sidebar() {
       </div>
 
       {/* User */}
-      <div className="px-5">
-        <div className="bg-slate-50 rounded-2xl p-3 flex items-center gap-3">
-          <img
+      <div className="px-4">
+        <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
+          <Image
             src="https://i.pravatar.cc/150?img=5"
             alt="profile"
+            width={40}
+            height={40}
             className="w-12 h-12 rounded-full"
           />
 
@@ -59,11 +72,11 @@ export default function Sidebar() {
         {/* Dashboard */}
         <Link
           href="/dashboard"
-          className={`flex items-center gap-3 px-5 py-2 rounded-xl font-medium ${
-            isActive("/dashboard")
+          onClick={closeSidebar}
+          className={`flex items-center gap-3 px-5 py-2 rounded-xl font-medium ${isActive("/dashboard")
               ? "bg-blue-50 text-blue-600"
               : "text-slate-700 hover:bg-slate-50"
-          }`}
+            }`}
         >
           <LayoutDashboard size={18} />
           Dashboard
@@ -93,11 +106,11 @@ export default function Sidebar() {
             <div className="ml-6 mt-3 space-y-1">
               <Link
                 href="/dashboard/categories"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/dashboard/categories")
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${isActive("/dashboard/categories")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <FolderTree size={14} />
                 Categories
@@ -105,11 +118,11 @@ export default function Sidebar() {
 
               <Link
                 href="/dashboard/subcategories"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/dashboard/subcategories")
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${isActive("/dashboard/subcategories")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <Layers3 size={14} />
                 Subcategories
@@ -117,48 +130,47 @@ export default function Sidebar() {
 
               <Link
                 href="/manage-content/courses"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/manage-content/courses") || 
-                  isActive("/manage-content/courses/add-course")
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${pathname.startsWith("/manage-content/courses")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <BookOpen size={14} />
                 Courses
               </Link>
 
               <Link
-                href="/dashboard/modules"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/dashboard/modules")
+                href="/manage-content/modules"
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${pathname.startsWith("/manage-content/modules")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <Layers3 size={14} />
                 Modules
               </Link>
 
               <Link
-                href="/dashboard/lessons"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/dashboard/lessons")
+                href="/manage-content/lessons"
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${isActive("/manage-content/lessons")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <BookOpenCheck size={14} />
                 Lessons
               </Link>
 
               <Link
-                href="/dashboard/quizzes"
-                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${
-                  isActive("/dashboard/quizzes")
+                href="/manage-content/quizzes"
+                onClick={closeSidebar}
+                className={`flex items-center text-sm gap-2 px-3 py-1 rounded-xl font-medium ${isActive("/manage-content/quizzes")
                     ? "bg-blue-50 text-blue-600"
                     : "text-slate-600 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 <FileQuestion size={14} />
                 Quizzes
@@ -170,11 +182,11 @@ export default function Sidebar() {
         {/* Settings */}
         <Link
           href="/dashboard/settings"
-          className={`mt-2 flex items-center gap-3 px-5 py-4 rounded-xl font-medium ${
-            isActive("/dashboard/settings")
+          onClick={closeSidebar}
+          className={`mt-2 flex items-center gap-3 px-5 py-4 rounded-xl font-medium ${isActive("/dashboard/settings")
               ? "bg-blue-50 text-blue-600"
               : "text-slate-700 hover:bg-slate-50"
-          }`}
+            }`}
         >
           <Settings size={18} />
           Settings
@@ -183,12 +195,18 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="border-t border-slate-200 p-5 space-y-3">
-        <button className="flex items-center gap-3 text-slate-600 hover:text-blue-600">
+        <button
+          onClick={closeSidebar}
+          className="flex items-center gap-3 text-slate-600 hover:text-blue-600"
+        >
           <HelpCircle size={20} />
           Help Center
         </button>
 
-        <button className="flex items-center gap-3 text-slate-600 hover:text-red-500">
+        <button
+          onClick={closeSidebar}
+          className="flex items-center gap-3 text-slate-600 hover:text-red-500"
+        >
           <LogOut size={20} />
           Logout
         </button>
