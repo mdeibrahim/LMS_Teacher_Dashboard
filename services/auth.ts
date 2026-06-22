@@ -19,4 +19,19 @@ export const RegisterTeacher = async (
   return response.data;
 };
 
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export const LoginTeacher = async (
+  data: LoginPayload
+) => {
+  const response = await api.post(
+    "/auth/login/",
+    data
+  );
+
+  return response.data;
+}
 

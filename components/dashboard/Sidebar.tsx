@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import axios from "axios";
 import {
   LayoutDashboard,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   HelpCircle,
   LogOut,
 } from "lucide-react";
+import { getProfile, type Profile } from "@/services/profile";
 
 interface SidebarProps {
   closeSidebar?: () => void;
@@ -25,6 +27,7 @@ interface SidebarProps {
 export default function Sidebar({
   closeSidebar,
 }: SidebarProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const [contentOpen, setContentOpen] = useState(
     pathname.startsWith("/manage-content") ||
@@ -34,6 +37,47 @@ export default function Sidebar({
   const isActive = (href: string) => {
     return pathname === href;
   };
+
+
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("teacher_access_token") ||
+        localStorage.getItem("token");
+
+      if (!token) {
+        setProfile(null);
+        setLoading(false);
+        router.replace("/auth/login");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const data = await getProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        if (
+          axios.isAxiosError(error) &&
+          (error.response?.status === 401 || error.response?.status === 403)
+        ) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("teacher_access_token");
+          localStorage.removeItem("token");
+          router.replace("/auth/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchProfile();
+  }, [router]);
   
   return (
     <aside className="w-[280px] bg-white border-r border-slate-200 min-h-screen flex flex-col">
@@ -48,8 +92,8 @@ export default function Sidebar({
       <div className="px-4">
         <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
           <Image
-            src="https://i.pravatar.cc/150?img=5"
-            alt="profile"
+            src={profile?.profile_picture || "/default_pp.jpg"}
+            alt={profile?.full_name || "profile"}
             width={40}
             height={40}
             className="w-12 h-12 rounded-full"
@@ -57,11 +101,11 @@ export default function Sidebar({
 
           <div>
             <h3 className="font-semibold text-slate-800">
-              Sarah Jenkins
+              {loading ? "Loading..." : profile?.full_name || "Sarah Jenkins"}
             </h3>
 
             <p className="text-sm text-slate-500">
-              Senior Instructor
+              {profile?.teacher_subject || "Senior Instructor"}
             </p>
           </div>
         </div>
