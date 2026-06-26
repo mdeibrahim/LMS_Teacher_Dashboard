@@ -21,6 +21,7 @@ import {
   updateLesson,
   type ResourcePayload,
 } from "@/services/lesson";
+import { getNextResourceId } from "@/services/resource";
 import {
   getModules,
   type Module,
@@ -98,6 +99,7 @@ export default function LessonEditor({
   const contentRef = useRef<HTMLDivElement | null>(null);
   const savedRangeRef = useRef<Range | null>(null);
   const nextItemIdRef = useRef(1);
+  const nextResourceIdRef = useRef<number | null>(null);
   const mediaFilesRef = useRef<Map<number, File>>(new Map());
 
   const [courses, setCourses] = useState<Course[]>([]);
@@ -137,6 +139,27 @@ export default function LessonEditor({
     courses.find((course) => course.id === activeCourseId) ?? null;
   const selectedModule =
     modules.find((module) => module.id === activeModuleId) ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchNextResourceId = async () => {
+      try {
+        const nextResourceId = await getNextResourceId();
+        if (!cancelled && nextResourceId) {
+          nextResourceIdRef.current = nextResourceId;
+        }
+      } catch (error) {
+        console.warn("Failed to preload next resource id", error);
+      }
+    };
+
+    void fetchNextResourceId();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -350,12 +373,33 @@ export default function LessonEditor({
 
     const nextMediaItem: MediaItem = {
       id: editingMediaItem?.id ?? nextItemIdRef.current++,
+      resourceId:
+        editingMediaItem?.resourceId ??
+        nextResourceIdRef.current ??
+        undefined,
       title: draft.title,
       contentType: draft.contentType,
       textContent: draft.textContent,
       youtubeUrl: draft.youtubeUrl,
       fileName: draft.fileName || nextFile?.name || "",
     };
+
+    if (
+      nextMediaItem.resourceId == null &&
+      nextResourceIdRef.current != null
+    ) {
+      nextMediaItem.resourceId = nextResourceIdRef.current;
+      nextResourceIdRef.current += 1;
+    } else if (
+      editingMediaItem?.resourceId == null &&
+      nextMediaItem.resourceId != null
+    ) {
+      nextResourceIdRef.current =
+        Math.max(
+          nextResourceIdRef.current ?? nextMediaItem.resourceId + 1,
+          nextMediaItem.resourceId + 1
+        );
+    }
 
     setMediaItems((current) => {
       const existingIndex = current.findIndex(
@@ -458,15 +502,49 @@ export default function LessonEditor({
       setStatusMessage("Saving lesson...");
 
       const bodyHtml = contentRef.current?.innerHTML ?? "";
+      let predictedNextResourceId = nextResourceIdRef.current;
+      if (
+        mediaItems.some((item) => item.resourceId == null) &&
+        predictedNextResourceId == null
+      ) {
+        predictedNextResourceId = await getNextResourceId();
+        if (predictedNextResourceId != null) {
+          nextResourceIdRef.current = predictedNextResourceId;
+        }
+      }
+
+      const mediaItemsWithResourceIds = mediaItems.map((item) => {
+        if (item.resourceId != null) {
+          return item;
+        }
+
+        if (predictedNextResourceId == null) {
+          return item;
+        }
+
+        const resourceId = predictedNextResourceId;
+        predictedNextResourceId += 1;
+
+        return {
+          ...item,
+          resourceId,
+        };
+      });
+
+      if (predictedNextResourceId != null) {
+        nextResourceIdRef.current = predictedNextResourceId;
+      }
+
       const composedBody = `${bodyHtml}${buildMetadataMarkup({
-        mediaItems,
+        mediaItems: mediaItemsWithResourceIds,
         accordionSections,
       })}`;
       const mediaFiles = Object.fromEntries(
         mediaFilesRef.current
       ) as Record<string, File>;
-      const resources: ResourcePayload[] = mediaItems.map(
+      const resources: ResourcePayload[] = mediaItemsWithResourceIds.map(
         (item, index) => ({
+          id: item.resourceId ?? undefined,
           title: item.title,
           content_type: item.contentType,
           text_content:
@@ -501,7 +579,9 @@ export default function LessonEditor({
 
       console.log("Posting linked media ids:", {
         draftMediaIds: mediaItems.map((item) => item.id),
-        draftResourceIds: mediaItems.map((item) => item.resourceId ?? null),
+        draftResourceIds: mediaItemsWithResourceIds.map(
+          (item) => item.resourceId ?? null
+        ),
       });
 
       const saveResponse = await createLesson(activeModuleId, {
@@ -524,7 +604,7 @@ export default function LessonEditor({
 
       const legacyToContentIdMap = buildLegacyToContentIdMap(
         mediaItems,
-        resourceIds
+        mediaItemsWithResourceIds.map((item) => item.resourceId ?? null)
       );
 
       if (legacyToContentIdMap.size > 0) {
