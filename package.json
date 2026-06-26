@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npm run test:lesson-media-link",
+    "test:lesson-media-link": "tsc --module commonjs --target es2020 --outDir /tmp/lms-lesson-media-link-tests lib/lesson-media-link.ts lib/lesson-media-link.test.ts && node --test /tmp/lms-lesson-media-link-tests/lesson-media-link.test.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

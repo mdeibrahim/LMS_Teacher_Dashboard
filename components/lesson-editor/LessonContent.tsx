@@ -1,6 +1,7 @@
 import {
   useEffect,
   forwardRef,
+  type MouseEvent,
   type MutableRefObject,
 } from "react";
 
@@ -9,6 +10,7 @@ interface LessonContentProps {
   onChange: (value: string) => void;
   onFocusSelection: () => void;
   onBlurSelection: () => void;
+  onClick: (event: MouseEvent<HTMLDivElement>) => void;
 }
 
 const LessonContent = forwardRef<
@@ -20,6 +22,7 @@ const LessonContent = forwardRef<
     onChange,
     onFocusSelection,
     onBlurSelection,
+    onClick,
   },
   ref
 ) {
@@ -71,6 +74,7 @@ const LessonContent = forwardRef<
       onInput={(event) => {
         onChange(event.currentTarget.innerHTML);
       }}
+      onClick={onClick}
       onFocus={onFocusSelection}
       onBlur={onBlurSelection}
     />

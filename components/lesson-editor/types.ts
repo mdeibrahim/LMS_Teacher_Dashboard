@@ -7,6 +7,7 @@ export type MediaContentType =
 
 export interface MediaItem {
   id: number;
+  resourceId?: number;
   title: string;
   contentType: MediaContentType;
   textContent: string;

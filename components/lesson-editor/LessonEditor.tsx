@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -17,6 +18,7 @@ import { getCourses, type Course } from "@/services/courses";
 import {
   createLesson,
   getLessons,
+  updateLesson,
   type ResourcePayload,
 } from "@/services/lesson";
 import {
@@ -35,6 +37,14 @@ import type {
   MediaDraft,
   MediaItem,
 } from "./types";
+import {
+  buildLegacyToContentIdMap,
+  buildLinkedResourceAttributes,
+  extractLessonSaveArtifacts,
+  findMediaItemByLinkedId,
+  getLinkedResourceIdFromTarget,
+  repairLegacyLinkedMediaHtml,
+} from "@/lib/lesson-media-link";
 
 type SaveTone = "idle" | "dirty" | "saving" | "success" | "error";
 
@@ -253,7 +263,7 @@ export default function LessonEditor({
     }
   };
 
-  const insertMediaLink = (mediaId: number) => {
+  const insertMediaLink = (item: MediaItem) => {
     if (!restoreSelection()) {
       return false;
     }
@@ -271,8 +281,16 @@ export default function LessonEditor({
 
     const span = document.createElement("span");
     span.className =
-      "inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-700";
-    span.dataset.mediaId = String(mediaId);
+      "inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 underline decoration-blue-300 decoration-dotted underline-offset-2 cursor-pointer hover:bg-blue-200";
+    const linkedAttributes = buildLinkedResourceAttributes(
+      item.resourceId ?? item.id
+    );
+
+    if (linkedAttributes["data-content-id"]) {
+      span.dataset.contentId = linkedAttributes["data-content-id"];
+    }
+    span.contentEditable = "false";
+    span.title = "Click to view linked media";
     span.textContent = text;
 
     range.deleteContents();
@@ -280,6 +298,23 @@ export default function LessonEditor({
     selection.removeAllRanges();
     markDirty();
     return true;
+  };
+
+  const handleContentClick = (event: MouseEvent<HTMLDivElement>) => {
+    const mediaId = getLinkedResourceIdFromTarget(event.target);
+    if (!Number.isFinite(mediaId)) {
+      return;
+    }
+
+    const item = findMediaItemByLinkedId(mediaItems, mediaId);
+    if (!item) {
+      toast.error("Linked media could not be found");
+      return;
+    }
+
+    event.preventDefault();
+    setEditingMediaItem(item);
+    setMediaModalOpen(true);
   };
 
   const openMediaModal = () => {
@@ -422,7 +457,8 @@ export default function LessonEditor({
       setStatusTone("saving");
       setStatusMessage("Saving lesson...");
 
-      const composedBody = `${contentRef.current?.innerHTML ?? ""}${buildMetadataMarkup({
+      const bodyHtml = contentRef.current?.innerHTML ?? "";
+      const composedBody = `${bodyHtml}${buildMetadataMarkup({
         mediaItems,
         accordionSections,
       })}`;
@@ -463,7 +499,12 @@ export default function LessonEditor({
         })
       );
 
-      await createLesson(activeModuleId, {
+      console.log("Posting linked media ids:", {
+        draftMediaIds: mediaItems.map((item) => item.id),
+        draftResourceIds: mediaItems.map((item) => item.resourceId ?? null),
+      });
+
+      const saveResponse = await createLesson(activeModuleId, {
         title: title.trim(),
         body_content: composedBody,
         order,
@@ -472,6 +513,46 @@ export default function LessonEditor({
         accordion_sections,
         mediaFiles,
       });
+
+      const { lessonId, resourceIds } =
+        extractLessonSaveArtifacts(saveResponse);
+
+      console.log("Backend returned content ids:", {
+        lessonId,
+        resourceIds,
+      });
+
+      const legacyToContentIdMap = buildLegacyToContentIdMap(
+        mediaItems,
+        resourceIds
+      );
+
+      if (legacyToContentIdMap.size > 0) {
+        console.log(
+          "Legacy to content id map:",
+          Array.from(legacyToContentIdMap.entries())
+        );
+      }
+
+      if (
+        lessonId &&
+        legacyToContentIdMap.size > 0
+      ) {
+        const repairedBody = repairLegacyLinkedMediaHtml(
+          composedBody,
+          legacyToContentIdMap
+        );
+
+        if (repairedBody !== composedBody) {
+          try {
+            await updateLesson(activeModuleId, lessonId, {
+              body_content: repairedBody,
+            });
+          } catch (patchError) {
+            console.warn("Failed to repair linked media ids", patchError);
+          }
+        }
+      }
 
       setStatusTone("success");
       setStatusMessage("Lesson saved");
@@ -526,30 +607,8 @@ export default function LessonEditor({
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Courses</p>
-          <h2 className="mt-2 text-3xl font-bold text-blue-600">
-            {courses.length}
-          </h2>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Modules</p>
-          <h2 className="mt-2 text-3xl font-bold text-emerald-600">
-            {moduleLoading ? "..." : modules.length}
-          </h2>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Next Order</p>
-          <h2 className="mt-2 text-3xl font-bold text-amber-600">
-            {lessonsLoading ? "..." : order}
-          </h2>
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="space-y-6">
+        {/* 2/3 Width */}
+        <div className="md:col-span-2">
           <div className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-sky-50 p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -631,6 +690,29 @@ export default function LessonEditor({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 1/3 Width */}
+        <div className="gap-3 grid md:grid-rows-2">
+          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm flex flex-col items-center justify-center text-center p-0">
+            <p className="text-sm text-slate-500">Total Modules</p>
+            <h2 className="mt-2 text-3xl font-bold text-emerald-600">
+              {moduleLoading ? "..." : modules.length}
+            </h2>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm flex flex-col items-center justify-center text-center p-0">
+            <p className="text-sm text-slate-500">Next Order</p>
+            <h2 className="mt-2 text-3xl font-bold text-amber-600">
+              {lessonsLoading ? "..." : order}
+            </h2>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="space-y-6">
+          
 
           <form
             onSubmit={(event) => {
@@ -743,6 +825,7 @@ export default function LessonEditor({
                 onChange={markDirty}
                 onFocusSelection={saveSelection}
                 onBlurSelection={markDirty}
+                onClick={handleContentClick}
               />
             </div>
 
@@ -830,7 +913,7 @@ export default function LessonEditor({
                       <button
                         type="button"
                         onClick={() => {
-                          if (!insertMediaLink(item.id)) {
+                          if (!insertMediaLink(item)) {
                             toast.error("Select text in the editor first");
                           } else {
                             toast.success("Media linked to selected text");

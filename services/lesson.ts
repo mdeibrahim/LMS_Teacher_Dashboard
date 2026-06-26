@@ -68,33 +68,58 @@ export interface LessonPayload {
   mediaFiles: Record<string, File>;
 }
 
+export type LessonUpdatePayload = Partial<
+  Omit<LessonPayload, "mediaFiles">
+> & {
+  mediaFiles?: Record<string, File>;
+};
+
 const appendJsonField = (
   formData: FormData,
   key: string,
   value: unknown
 ) => {
-  formData.append(key, JSON.stringify(value));
+  if (value !== undefined) {
+    formData.append(key, JSON.stringify(value));
+  }
 };
 
 const appendMediaFiles = (
   formData: FormData,
-  mediaFiles: Record<string, File>
+  mediaFiles?: Record<string, File>
 ) => {
+  if (!mediaFiles) {
+    return;
+  }
+
   Object.entries(mediaFiles).forEach(([key, file]) => {
     formData.append(key, file);
   });
 };
 
-const buildFormData = (data: LessonPayload) => {
+const buildFormData = (
+  data: LessonPayload | LessonUpdatePayload
+) => {
   const formData = new FormData();
 
-  formData.append("title", data.title);
-  formData.append("body_content", data.body_content);
-  formData.append("order", String(data.order));
-  formData.append(
-    "is_published",
-    String(data.is_published)
-  );
+  if (data.title !== undefined) {
+    formData.append("title", data.title);
+  }
+
+  if (data.body_content !== undefined) {
+    formData.append("body_content", data.body_content);
+  }
+
+  if (data.order !== undefined) {
+    formData.append("order", String(data.order));
+  }
+
+  if (data.is_published !== undefined) {
+    formData.append(
+      "is_published",
+      String(data.is_published)
+    );
+  }
 
   appendJsonField(
     formData,
@@ -120,7 +145,7 @@ export const getLessons = async (
   moduleId: number
 ): Promise<Lesson[]> => {
   const response = await api.get(
-    `/lesson-list/${moduleId}/`
+    `/lesson-list/?module_id=${moduleId}`
   );
 
   return response.data.data ?? [];
@@ -131,7 +156,7 @@ export const getLesson = async (
   lessonId: number
 ): Promise<Lesson> => {
   const response = await api.get(
-    `/lesson-list/${moduleId}/?lesson_id=${lessonId}`
+    `/lesson-list/?module_id=${moduleId}&lesson_id=${lessonId}`
   );
 
   return response.data.data;
@@ -157,10 +182,10 @@ export const createLesson = async (
 export const updateLesson = async (
   moduleId: number,
   lessonId: number,
-  data: LessonPayload
+  data: LessonUpdatePayload
 ) => {
   const response = await api.patch(
-    `/lesson-list/${moduleId}/?lesson_id=${lessonId}`,
+    `/update-lesson/?module_id=${moduleId}&lesson_id=${lessonId}`,
     buildFormData(data),
     {
       headers: {
@@ -177,7 +202,7 @@ export const deleteLesson = async (
   lessonId: number
 ) => {
   const response = await api.delete(
-    `/lesson-list/${moduleId}/?lesson_id=${lessonId}`
+    `/delete-lesson/?module_id=${moduleId}&lesson_id=${lessonId}`
   );
 
   return response.data;
