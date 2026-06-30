@@ -85,28 +85,6 @@ export default function ProfileAvatar() {
         onChange={handleImageChange}
       />
 
-      <div className="mt-8 space-y-3 items-baseline flex flex-col md:flex-row md:space-x-3 md:space-y-0">
-
-        <button
-          type="button"
-          onClick={handleChooseImage}
-          className="w-auto rounded-xl bg-blue-600 px-4 py-3 text-xs font-medium text-white transition hover:bg-blue-700"
-        >
-          Upload New Photo
-        </button>
-
-        <button
-          type="button"
-          onClick={handleRemove}
-          className="flex w-auto items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-3 text-xs font-medium text-red-600 transition hover:bg-red-200"
-        >
-          <Trash2 size={16} />
-
-          Remove Photo
-        </button>
-
-      </div>
-
       <p className="mt-6 text-center text-xs text-slate-400">
         Recommended size: 400 × 400 px
       </p>
