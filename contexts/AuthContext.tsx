@@ -14,12 +14,13 @@ import {
   getProfile,
   type Profile,
 } from "@/services/profile";
+import api from "@/services/api";
 
 interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -39,15 +40,30 @@ export function AuthProvider({
   const [loading, setLoading] =
     useState(true);
 
-  const logout = () => {
+  const logout = async () => {
+  try {
+    // পরে backend logout API থাকলে এখানে call হবে
+    // await LogoutTeacher();
+  } catch (error) {
+    console.error(error);
+  } finally {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+
     localStorage.removeItem("teacher_access_token");
+    localStorage.removeItem("teacher_refresh_token");
+
     localStorage.removeItem("token");
+
+    sessionStorage.clear();
+
+    delete api.defaults.headers.common.Authorization;
 
     setProfile(null);
 
     router.replace("/auth/login");
-  };
+  }
+};
 
   const refreshProfile = async () => {
     try {

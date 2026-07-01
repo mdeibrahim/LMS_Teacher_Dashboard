@@ -44,6 +44,11 @@ export default function Sidebar({
   useAuth();
   const avatarSrc = profile?.profile_picture || "/default_pp.jpg";
   const isRemoteAvatar = avatarSrc.startsWith("http://") || avatarSrc.startsWith("https://");
+
+  const handleLogout = () => {
+  closeSidebar?.(); // Mobile sidebar থাকলে বন্ধ করবে
+  logout();         // AuthContext-এর logout function call করবে
+};
   
   return (
     <aside className="w-[280px] bg-white border-r border-slate-200 min-h-screen flex flex-col">
@@ -215,7 +220,7 @@ export default function Sidebar({
         </button>
 
         <button
-          onClick={closeSidebar}
+          onClick={handleLogout}
           className="flex items-center gap-3 text-slate-600 hover:text-red-500"
         >
           <LogOut size={20} />
