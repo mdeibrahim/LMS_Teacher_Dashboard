@@ -5,6 +5,8 @@ export interface Profile {
   email: string;
   full_name: string;
   phone_number: string;
+  address: string | null;
+  bio: string | null;
   profile_picture: string | null;
   teacher_institution: string | null;
   teacher_subject: string | null;
@@ -27,3 +29,8 @@ export const getProfile = async (): Promise<Profile> => {
 
   return payload as Profile;
 };
+
+export const updateProfile = async (data: Partial<Profile>) => {
+  const response = await api.put("/profile/", data);
+  return response.data;
+}

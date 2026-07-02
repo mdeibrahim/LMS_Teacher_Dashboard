@@ -87,7 +87,7 @@ export default function RegisterForm() {
           Create your Account
         </h4>
 
-        <p className="text-slate-500 mt-2 text-sm sm:text-base leading-relaxed">
+        <p className="text-slate-500 mt-2 text-xs sm:text-base leading-relaxed">
           Join our community of innovative educators and share your assets.
         </p>
       </div>

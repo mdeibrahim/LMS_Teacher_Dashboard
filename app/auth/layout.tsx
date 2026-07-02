@@ -26,20 +26,20 @@ export default function AuthLayout({
 
           <div className="mb-8 text-center">
 
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 shadow-lg">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg">
 
               <GraduationCap
                 className="text-white"
-                size={38}
+                size={30}
               />
 
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold text-slate-900">
+            <h1 className="mt-5 text-2xl font-bold text-slate-900">
               Teacher Dashboard
             </h1>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-xs text-slate-500">
               Learning Management System
             </p>
 
@@ -47,9 +47,9 @@ export default function AuthLayout({
 
           {/* Card */}
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
 
-            <div className="mb-8 text-center">
+            {/* <div className="mb-8 text-center">
 
               <h2 className="text-2xl font-bold text-slate-900">
                 {title}
@@ -59,7 +59,7 @@ export default function AuthLayout({
                 {subtitle}
               </p>
 
-            </div>
+            </div> */}
 
             {children}
 
@@ -67,7 +67,7 @@ export default function AuthLayout({
 
           {/* Footer */}
 
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
 
             <Link
               href="/login"
@@ -76,7 +76,7 @@ export default function AuthLayout({
               ← Back to Login
             </Link>
 
-          </div>
+          </div> */}
 
         </div>
 

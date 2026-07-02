@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { updateProfile } from "@/services/profile";
 import { Save } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+type ProfileFormState = {
+  full_name: string;
+  email: string;
+  phone: string;
+  gender: string;
+  date_of_birth: string;
+  address: string;
+  bio: string;
+};
 
 export default function ProfileForm() {
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
+  const { profile } = useAuth();
+
+  const [form, setForm] = useState<Partial<ProfileFormState>>({});
+
+  const profileFormValues: ProfileFormState = {
+    full_name: profile?.full_name ?? "",
+    email: profile?.email ?? "",
+    phone: profile?.phone_number ?? "",
     gender: "",
     date_of_birth: "",
-    address: "",
-    bio: "",
-  });
+    address: profile?.address ?? "",
+    bio: profile?.bio ?? "",
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -30,10 +47,27 @@ export default function ProfileForm() {
   ) => {
     e.preventDefault();
 
-    console.log(form);
+    const updatableFields: ProfileFormState = {
+      full_name: form.full_name ?? profileFormValues.full_name,
+      email: profileFormValues.email,
+      phone: form.phone ?? profileFormValues.phone,
+      gender: form.gender ?? profileFormValues.gender,
+      date_of_birth:
+        form.date_of_birth ?? profileFormValues.date_of_birth,
+      address: form.address ?? profileFormValues.address,
+      bio: form.bio ?? profileFormValues.bio,
+    };
 
-    // TODO:
-    // updateProfile(form)
+    updateProfile(updatableFields)
+      .then((response) => {
+        toast.success(
+          response?.message || "Profile updated successfully!"
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("An error occurred while updating profile.");
+      });
   };
 
   return (
@@ -61,7 +95,7 @@ export default function ProfileForm() {
           <input
             type="text"
             name="full_name"
-            value={form.full_name}
+            value={form.full_name ?? profileFormValues.full_name}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
             placeholder="John Doe"
@@ -78,9 +112,10 @@ export default function ProfileForm() {
           <input
             type="email"
             name="email"
-            value={form.email}
+            value={profileFormValues.email}
             readOnly
-            className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
+            disabled
+            className="w-full rounded-xl border border-slate-300 bg-slate-100 px-2 py-2 pl-4 text-slate-500 outline-none transition"
             placeholder="john.doe@example.com"
           />
         </div>
@@ -95,7 +130,7 @@ export default function ProfileForm() {
           <input
             type="text"
             name="phone"
-            value={form.phone}
+            value={form.phone ?? profileFormValues.phone}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
             placeholder="+8801XXXXXXXXX"
@@ -104,14 +139,14 @@ export default function ProfileForm() {
 
         {/* Gender */}
 
-        <div>
+        {/* <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
             Gender
           </label>
 
           <select
             name="gender"
-            value={form.gender}
+            value={form.gender ?? profileFormValues.gender}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
           >
@@ -131,11 +166,11 @@ export default function ProfileForm() {
               Other
             </option>
           </select>
-        </div>
+        </div> */}
 
         {/* DOB */}
 
-        <div>
+        {/* <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
             Date of Birth
           </label>
@@ -143,11 +178,11 @@ export default function ProfileForm() {
           <input
             type="date"
             name="date_of_birth"
-            value={form.date_of_birth}
+            value={form.date_of_birth ?? profileFormValues.date_of_birth}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
           />
-        </div>
+        </div> */}
 
         {/* Address */}
 
@@ -159,7 +194,7 @@ export default function ProfileForm() {
           <input
             type="text"
             name="address"
-            value={form.address}
+            value={form.address ?? profileFormValues.address}
             onChange={handleChange}
             className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
             placeholder="Dhaka, Bangladesh"
@@ -178,7 +213,7 @@ export default function ProfileForm() {
         <textarea
           rows={5}
           name="bio"
-          value={form.bio}
+          value={form.bio ?? profileFormValues.bio}
           onChange={handleChange}
           className="w-full rounded-xl border border-slate-300 pl-4 px-2 py-2 outline-none transition focus:border-blue-500"
           placeholder="Tell students something about yourself..."

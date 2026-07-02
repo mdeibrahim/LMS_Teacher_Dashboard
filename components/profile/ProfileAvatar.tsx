@@ -1,15 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Camera, Trash2, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Camera, User } from "lucide-react";
 import Image from "next/image";
+import { useRef, useState } from "react";
 
 export default function ProfileAvatar() {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { profile, loading } = useAuth();
+  const { profile } = useAuth();
   const avatarSrc = profile?.profile_picture || "/default_pp.jpg";
-  const [preview, setPreview] = useState(avatarSrc);
+  const [preview, setPreview] = useState<string | null>(null);
+  const displaySrc = preview ?? avatarSrc;
 
   const handleChooseImage = () => {
     inputRef.current?.click();
@@ -23,14 +24,6 @@ export default function ProfileAvatar() {
     if (!file) return;
 
     setPreview(URL.createObjectURL(file));
-  };
-
-  const handleRemove = () => {
-    setPreview(avatarSrc);
-
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
   };
 
   return (
@@ -47,33 +40,35 @@ export default function ProfileAvatar() {
       <div className="mt-8 flex justify-center">
 
         <div className="relative mx-auto w-fit">
-  <div className="relative h-44 w-44 overflow-hidden rounded-full border-4 border-blue-100 bg-slate-100 shadow-lg">
-    {preview ? (
-      <Image
-        src={preview}
-        alt="Profile"
-        fill
-        className="object-cover"
-        unoptimized
-      />
-    ) : (
-      <div className="flex h-full w-full items-center justify-center">
-        <User
-          className="text-slate-400"
-          size={80}
-        />
-      </div>
-    )}
-  </div>
+          <div className="relative h-44 w-44 overflow-hidden rounded-full border-4 border-blue-100 bg-slate-100 shadow-lg">
+            {displaySrc ? (
+              <Image
+                src={displaySrc}
+                alt="Profile"
+                fill
+                className="object-cover"
+                loading="eager"
+                priority
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <User
+                  className="text-slate-400"
+                  size={80}
+                />
+              </div>
+            )}
+          </div>
 
-  <button
-    type="button"
-    onClick={handleChooseImage}
-    className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-lg transition-all hover:scale-105 hover:bg-blue-700"
-  >
-    <Camera size={18} />
-  </button>
-</div>
+          <button
+            type="button"
+            onClick={handleChooseImage}
+            className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-lg transition-all hover:scale-105 hover:bg-blue-700"
+          >
+            <Camera size={18} />
+          </button>
+        </div>
 
       </div>
 

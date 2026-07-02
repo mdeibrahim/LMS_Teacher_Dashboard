@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: Props) {
       <GlowBackground />
 
       {/* Header */}
-      <header className="absolute top-6 left-8 z-20">
+      {/* <header className="absolute top-6 left-8 z-20">
         <Link
           href="/"
           className="flex items-center gap-2"
@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: Props) {
             TeachPlatform
           </span>
         </Link>
-      </header>
+      </header> */}
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
