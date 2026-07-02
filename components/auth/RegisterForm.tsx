@@ -1,17 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
 import axios from "axios";
-import { toast } from "sonner";
 import {
-  User,
+  ArrowRight,
+  Lock,
   Mail,
   Phone,
-  Lock,
-  ArrowRight,
+  User,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 
 import Input from "@/components/ui/Input";
@@ -59,8 +59,12 @@ export default function RegisterForm() {
       );
 
       setTimeout(() => {
-        router.replace("/auth/login");
-      }, 2000);
+        router.replace(
+          "/auth/verify-otp?email=" +
+          encodeURIComponent(formData.email) +
+          "&source=register"
+        );
+      }, 1000);
 
     } catch (error: unknown) {
 
@@ -105,7 +109,7 @@ export default function RegisterForm() {
           />
           <User
             size={18}
-            className="absolute right-4 top-[30px] text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
+            className="absolute right-4 top-7.5 text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
           />
         </div>
 
@@ -121,7 +125,7 @@ export default function RegisterForm() {
           />
           <Mail
             size={18}
-            className="absolute right-4 top-[30px] text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
+            className="absolute right-4 top-7.5 text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
           />
         </div>
 
@@ -137,7 +141,7 @@ export default function RegisterForm() {
           />
           <Phone
             size={18}
-            className="absolute right-4 top-[30px] text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
+            className="absolute right-4 top-7.5 text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
           />
         </div>
 
@@ -154,7 +158,7 @@ export default function RegisterForm() {
             />
             <Lock
               size={18}
-              className="absolute right-4 top-[30px] text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
+              className="absolute right-4 top-7.5 text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
             />
           </div>
 
@@ -170,7 +174,7 @@ export default function RegisterForm() {
             />
             <Lock
               size={18}
-              className="absolute right-4 top-[30px] text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
+              className="absolute right-4 top-7.5 text-gray-400 transition-colors group-focus-within:text-blue-500 pointer-events-none"
             />
           </div>
         </div>
@@ -193,7 +197,7 @@ export default function RegisterForm() {
           </label>
         </div>
 
-        {/* if backend returns success redirect to login page */}
+        {/* if backend returns success redirect to OTP verification page */}
         <Button
           type="submit"
           disabled={loading}

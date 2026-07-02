@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Mail, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import AuthLayout from "@/app/auth/layout";
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       toast.success("OTP sent successfully.");
 
       router.push(
-        `/auth/verify-otp?email=${encodeURIComponent(email)}`
+        `/auth/verify-otp?email=${encodeURIComponent(email)}&source=forgot-password`
       );
     } catch (error) {
       console.error(error);

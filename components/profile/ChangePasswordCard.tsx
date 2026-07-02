@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Lock, Save } from "lucide-react";
+import { toast } from "sonner";
+import { passwordChange } from "@/services/profile";
 
 export default function ChangePasswordCard() {
   const [form, setForm] = useState({
@@ -9,6 +11,8 @@ export default function ChangePasswordCard() {
     new_password: "",
     confirm_password: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -25,14 +29,31 @@ export default function ChangePasswordCard() {
     e.preventDefault();
 
     if (form.new_password !== form.confirm_password) {
-      alert("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
 
-    console.log(form);
+    setLoading(true);
 
-    // TODO:
-    // changePassword(form)
+    passwordChange(form)
+      .then((response) => {
+        toast.success(
+          response?.message || "Password updated successfully."
+        );
+
+        setForm({
+          current_password: "",
+          new_password: "",
+          confirm_password: "",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to update password.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -71,6 +92,7 @@ export default function ChangePasswordCard() {
             name="current_password"
             value={form.current_password}
             onChange={handleChange}
+            required
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
           />
         </div>
@@ -87,6 +109,7 @@ export default function ChangePasswordCard() {
             name="new_password"
             value={form.new_password}
             onChange={handleChange}
+            required
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
           />
         </div>
@@ -103,6 +126,7 @@ export default function ChangePasswordCard() {
             name="confirm_password"
             value={form.confirm_password}
             onChange={handleChange}
+            required
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
           />
         </div>
@@ -112,11 +136,12 @@ export default function ChangePasswordCard() {
       <div className="mt-8 flex justify-end">
         <button
           type="submit"
+          disabled={loading}
           className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-6 py-3 font-medium text-xs text-white transition hover:bg-blue-800"
         >
           <Save size={14} />
 
-          Update Password
+          {loading ? "Updating..." : "Update Password"}
         </button>
       </div>
     </form>

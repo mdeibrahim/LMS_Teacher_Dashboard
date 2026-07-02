@@ -84,10 +84,7 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <AuthLayout
-      title="Reset Password"
-      subtitle="Create a new password for your account."
-    >
+    <div className="p-4">
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
@@ -251,6 +248,6 @@ export default function ResetPasswordPage() {
         </button>
 
       </form>
-    </AuthLayout>
+    </div>
   );
 }

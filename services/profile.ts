@@ -34,3 +34,22 @@ export const updateProfile = async (data: Partial<Profile>) => {
   const response = await api.put("/profile/", data);
   return response.data;
 }
+
+
+export interface PasswordChange {
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+ 
+interface PasswordChangeResponse {
+  message: string;
+}
+
+export const passwordChange = async (
+  data: PasswordChange
+): Promise<PasswordChangeResponse> => {
+  const response = await api.post("/change-password/", data);
+
+  return response.data;
+}

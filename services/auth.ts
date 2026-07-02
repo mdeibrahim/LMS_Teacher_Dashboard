@@ -88,6 +88,7 @@ export const VerifyOTP = async (
 
 export interface ResendOTPPayload {
   email: string;
+  type: "register" | "forgot-password";
 }
 
 export const ResendOTP = async (
